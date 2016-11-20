@@ -1,3 +1,8 @@
+"""
+wrote this to plot KDEs created in wrapper_sim.py for cadence simulations
+
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 

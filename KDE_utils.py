@@ -1,5 +1,6 @@
-import numpy as np
 '''
+from Anais Moller: https://github.com/anaismoller/Python_Utilities
+
 Utility to perform a KDE with varying width according to uncertainties in measurements
 Input:
     xlist= array xaxis where the KDE will be performed
@@ -9,6 +10,9 @@ Input:
 Returns: 
     KDE array
 '''
+
+import numpy as np
+
 def solve_gaussian(val,data_array,sigma_array,bandwidth):
     return (1. / np.sqrt(bandwidth**2 + sigma_array**2)) * np.exp(- (val - data_array) * (val - data_array) / (2 * (bandwidth**2 + sigma_array**2)))
 

@@ -1,3 +1,9 @@
+"""
+
+Wrapper for simulation_new.py. BZ wrote this to assess the recovered SALT2 X1 and C for a number of different observing cadences, for the same 1000 SNe. This is here as an example: play with and change it as you see fit, and send me questions about parts you don't understand!
+
+"""
+
 # pylint: disable=E1101
 
 import os
@@ -15,13 +21,13 @@ np.random.seed(seed)
 
 ## edit below for simulation:
 
-nSNe = 1000
+nSNe = 1000 # probably reduce this if playing with for the first time
 
 ## generate random phase of first detection, and time to observe over
 tDet = np.random.randint(-15, -2, size=nSNe)
 tObs = np.random.randint(25, 65, size=nSNe)
 
-## generate random SN properties, redshifts, extinction
+m## generate random SN properties, redshifts, extinction
 z_in = np.random.uniform(0.01, 0.08, size=nSNe)
 X1_in = 3*np.random.randn(nSNe)
 C_in = 0.3*np.random.randn(nSNe)
@@ -42,7 +48,7 @@ Nv = 0 ## n of v observations observations
 
 """
 
-## for KDEs
+## for plotting KDEs
 
 def gauss_fn(x,mu,sigma,A): #gaussian for fitting to the probability distributions
     return A*np.exp(-(x-mu)**2/(2*sigma**2))
