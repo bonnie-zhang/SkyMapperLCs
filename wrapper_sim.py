@@ -15,19 +15,19 @@ from scipy.optimize import curve_fit
 
 from KDE_utils import solve_kde
 
-seed = 2016 
+seed = 999 
 
 np.random.seed(seed)
 
 ## edit below for simulation:
 
-nSNe = 1000 # probably reduce this if playing with for the first time
+nSNe = 5 ## change this for more SNe
 
 ## generate random phase of first detection, and time to observe over
 tDet = np.random.randint(-15, -2, size=nSNe)
 tObs = np.random.randint(25, 65, size=nSNe)
 
-m## generate random SN properties, redshifts, extinction
+## generate random SN properties, redshifts, extinction
 z_in = np.random.uniform(0.01, 0.08, size=nSNe)
 X1_in = 3*np.random.randn(nSNe)
 C_in = 0.3*np.random.randn(nSNe)
@@ -37,8 +37,8 @@ daymax_in = np.random.uniform(57650, 57700, size=nSNe) #doesn't really matter
 ## toggle for observing gr in bad seeing time, and for including v observations around max
 
 #bad_gr = True
-
 """
+
 cad_gr = 5
 
 bad_i = False
@@ -47,6 +47,7 @@ cad_i = 10
 Nv = 0 ## n of v observations observations
 
 """
+
 
 ## for plotting KDEs
 
@@ -58,9 +59,9 @@ def bandwidth(data):
     return 1.06 * np.std(data) / np.power(len(data),1 / 5)
 
 
-for cad_gr in [5,3]:
-    for Nv in [0,1]:
-        for cad_i in [cad_gr, 10]:
+for cad_gr in [5]:#,3]:
+    for Nv in [0]:#,1]:
+        for cad_i in [cad_gr]:#, 10]:
             if cad_i == 10:
                 bad_i = False
             else:
@@ -103,8 +104,7 @@ for cad_gr in [5,3]:
                     cmd = 'python simulation_new.py -n %s -d %s -e %s -X %s -C %s -z %s -c cadence_%s.txt -p -r -g -b'%(name, daymax_in[i], MWEBV_in[i], X1_in[i], C_in[i], z_in[i], name)
                 #print cmd
                 os.system(cmd)
-
-
+                
             ## document failed SALT2 fits, and output quantities
             fail = 0
 
@@ -195,7 +195,7 @@ for cad_gr in [5,3]:
             plt.savefig('results_%s_%s.png'%(cadence, nSNe))
 
 
-            ## difference, with KDE
+            """## difference, with KDE
             
             fig2 = plt.figure()
             
@@ -238,9 +238,7 @@ for cad_gr in [5,3]:
             ## write
             
             kde_data = np.column_stack((xlist, kde_vector_data/nSNe*.05, xlist2, kde_vector_data2/nSNe*.5))
-            
-            #            print kde_data.shape
-            
+                        
             np.savetxt('kde_data_%s_%s.txt'%(cadence, nSNe), kde_data, header = 'diff_C, KDE_C, diff_X1, KDE_X1')
 
             
@@ -276,4 +274,4 @@ for cad_gr in [5,3]:
             
             resfhandle.write('color KDE: mean %s, stddev %s \n'%(popt_C[0], popt_C[1]))
             resfhandle.write('stretch KDE: mean %s, stddev %s \n'%(popt_X1[0], popt_X1[1]))
-            resfhandle.close()
+            resfhandle.close()"""

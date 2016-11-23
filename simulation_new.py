@@ -92,7 +92,7 @@ parser.add_option('-p', '--plot', dest='plot', action="store_true", default=Fals
 parser.add_option('-s', '--suffix', dest='suffix', default='',
                   help='suffix to add to observation')
 
-## whether observed in bad seeing - this basically affects the scatter, and can probably be improved
+## whether observed in bad seeing - this basically affects the scatter, and this code can probably be improved
 
 parser.add_option('-b', '--bad_gr', dest='bad_gr', action="store_true", default=False,
                   help='use bad seeing for gr?')
@@ -100,9 +100,7 @@ parser.add_option('-b', '--bad_gr', dest='bad_gr', action="store_true", default=
 parser.add_option('-i', '--bad_i', dest='bad_i', action="store_true", default=False,
                   help='use bad seeing for i?')
 
-## bonnie has multiple salt2 versions installed so needs the following; set your default to empty string
-
-parser.add_option('-S', '--salt', dest='salt', default='/usr/local/Cellar/salt/2.4/bin/',
+parser.add_option('-S', '--salt', dest='salt', default='', #'/usr/local/Cellar/salt/2.4/bin/',
                   help='location of SALT2 binaries')
 
 (options, args) = parser.parse_args()
@@ -143,9 +141,11 @@ lcfile.close()
 
 if options.generate:
     ncols = 0
-    while ncols < len(filters):
-        cmd_snlc = options.salt + 'snlc lc_' + sn + '_.list -p input_' + sn + '.dat'
-        os.system(cmd_snlc) > 'temp'
+    #while ncols < len(filters):
+    cmd_snlc = options.salt + 'snlc lc_' + sn + '_.list -p input_' + sn + '.dat -o lc_Salt2Model_' + sn + '.dat'
+    print cmd_snlc
+    os.system(cmd_snlc) > 'temp'
+    """
         ## test viability of snlc outputs
         for lcfile in glob.glob('lc_Salt2Model_?.dat'):
             size = os.path.getsize(lcfile)
@@ -154,42 +154,47 @@ if options.generate:
                 cmd_mv = 'mv ' + lcfile + ' ' + lcfile[:14] + sn + '_' + lcfile[14:]
                 os.system(cmd_mv)
         print glob.glob('lc_Salt2Model_' + sn + '_?.dat')
-        ncols = len(glob.glob('lc_Salt2Model_' + sn + '_?.dat'))
+        ncols = len(glob.glob('lc_Salt2Model_' + sn + '_?.dat'))"""
 
 ## 'performs observation' - first set up dict of ZPs
 
 zp_dict = {}
 mag_sim, mag_sim_err, flux_sim, flux_sim_err = copy.deepcopy(empty), copy.deepcopy(empty), copy.deepcopy(empty), copy.deepcopy(empty)
 
-lcfiles = {}
+#lcfiles = {}
 
 obsdates = np.genfromtxt(options.cadenceFile, names=True)
 filtersObs = obsdates.dtype.names
 
-for f in filtersObs:
+filename = 'lc_Salt2Model_' + sn + '.dat'
+
+"""for f in filtersObs:
     filename = 'lc_Salt2Model_' + sn + '_' + f + '.dat'
     if isfile_cs(filename): #checks if lc file exists
-        lcfiles[f] = filename
-for f in lcfiles.keys():
-    lines = open(lcfiles[f]).readlines()
-    for line in lines:
-        if not (line.startswith('@') or line.startswith('#')):
-            l = line.split(' ')
-            try:
-                if len(l) > 1 and float(l[2]) < float(l[1]):
-                    date = float(l[0])
-                    flux_sim[f][date] = float(l[1])
-                    flux_sim_err[f][date] = float(l[2])
-                    zp = float(l[3])
-                    mag_sim[f][date] = -2.5*np.log10(float(l[1])) + zp
-                    mag_sim_err[f][date] = 1.085736 * float(l[2])/float(l[1])
-                    if f not in zp_dict.keys():
-                        zp_dict[f] = zp
-            except IndexError:
-                pass #print '??', l
+        lcfiles[f] = filename"""
+#for f in lcfiles.keys():
+
+## following reads in simulated LC
+lines = open(filename).readlines()
+for line in lines:
+    if not (line.startswith('@') or line.startswith('#')):
+        l = line.split(' ')
+        f = l[4][-1]
+        #       print f
+        #        try:
+        if len(l) > 1 and float(l[2]) < float(l[1]): # check flux error isn't stupidly big
+            date = float(l[0])
+            flux_sim[f][date] = float(l[1])
+            flux_sim_err[f][date] = float(l[2])
+            zp = float(l[3])
+            mag_sim[f][date] = -2.5*np.log10(float(l[1])) + zp
+            mag_sim_err[f][date] = 1.085736 * float(l[2])/float(l[1])
+            if f not in zp_dict.keys():
+                zp_dict[f] = zp
+#except IndexError:
+#                pass #print '??', l
 
 lclines = open('lc_' + sn + '_.list').readlines()
-
 
 flux_obs, flux_obs_err = copy.deepcopy(empty), copy.deepcopy(empty) ## subset of flux_sim; only those 'observed'; doesn't include scatter
 
